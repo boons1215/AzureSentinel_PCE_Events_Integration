@@ -1,0 +1,504 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Current_time": {
+                "inputs": {},
+                "kind": "CurrentTime",
+                "runAfter": {},
+                "type": "Expression"
+            },
+            "Delay": {
+                "inputs": {
+                    "interval": {
+                        "count": 10,
+                        "unit": "Second"
+                    }
+                },
+                "runAfter": {
+                    "Retrieve_POST_async_query_job_status": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Wait"
+            },
+            "HTTP_-_Download_traffic_report": {
+                "inputs": {
+                    "authentication": {
+                        "password": "<api_secret>",
+                        "type": "Basic",
+                        "username": "<api_user>"
+                    },
+                    "headers": {
+                        "Accept": "application/json",
+                        "content-type": "application/json"
+                    },
+                    "method": "GET",
+                    "uri": "https://scp4.illum.io/api/v2/@{variables('retrieve_job_id')}/download"
+                },
+                "runAfter": {
+                    "Until_the_job_completed": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "HTTP_-_GET_-_async_query_job_status_with_job_ID": {
+                "inputs": {
+                    "authentication": {
+                        "password": "<api_secret>",
+                        "type": "Basic",
+                        "username": "<api_user>"
+                    },
+                    "headers": {
+                        "Accept": "application/json",
+                        "content-type": "application/json"
+                    },
+                    "method": "GET",
+                    "uri": "https://scp4.illum.io/api/v2/@{variables('retrieve_job_id')}"
+                },
+                "runAfter": {
+                    "Delay": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "HTTP_-_POST_-_Create_async_query_from_last_hour_to_the_current_time": {
+                "inputs": {
+                    "authentication": {
+                        "password": "<api_secret>",
+                        "type": "Basic",
+                        "username": "<api_user>"
+                    },
+                    "body": {
+                        "destinations": {
+                            "exclude": [],
+                            "include": [
+                                []
+                            ]
+                        },
+                        "end_date": "@{body('Current_time')}",
+                        "max_results": 100000,
+                        "policy_decisions": [],
+                        "query_name": "UI_EXPLORER_QUERY_Time: Last Hour",
+                        "services": {
+                            "exclude": [],
+                            "include": []
+                        },
+                        "sources": {
+                            "exclude": [],
+                            "include": [
+                                []
+                            ]
+                        },
+                        "sources_destinations_query_op": "and",
+                        "start_date": "@{body('Subtract_1_hour_from_the_current_time')}"
+                    },
+                    "headers": {
+                        "Accept": "application/json",
+                        "content-type": "application/json"
+                    },
+                    "method": "POST",
+                    "uri": "https://scp4.illum.io/api/v2/orgs/8/traffic_flows/async_queries"
+                },
+                "runAfter": {
+                    "Placeholder_-_Initial_async_query_job_status_": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Parse_GET_async_query_as_JSON": {
+                "inputs": {
+                    "content": "@variables('post_async_queries')",
+                    "schema": {
+                        "properties": {
+                            "created_at": {
+                                "type": "string"
+                            },
+                            "created_by": {
+                                "properties": {
+                                    "href": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "flows_count": {
+                                "type": "integer"
+                            },
+                            "href": {
+                                "type": "string"
+                            },
+                            "matches_count": {
+                                "type": "integer"
+                            },
+                            "query_parameters": {
+                                "properties": {
+                                    "destinations": {
+                                        "properties": {
+                                            "exclude": {
+                                                "type": "array"
+                                            },
+                                            "include": {
+                                                "items": {
+                                                    "type": "array"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "end_date": {
+                                        "type": "string"
+                                    },
+                                    "max_results": {
+                                        "type": "integer"
+                                    },
+                                    "policy_decisions": {
+                                        "type": "array"
+                                    },
+                                    "query_name": {
+                                        "type": "string"
+                                    },
+                                    "services": {
+                                        "properties": {
+                                            "exclude": {
+                                                "type": "array"
+                                            },
+                                            "include": {
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "sources": {
+                                        "properties": {
+                                            "exclude": {
+                                                "type": "array"
+                                            },
+                                            "include": {
+                                                "items": {
+                                                    "type": "array"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "sources_destinations_query_op": {
+                                        "type": "string"
+                                    },
+                                    "start_date": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "result": {
+                                "type": "string"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "updated_at": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Retrieve_GET_body_of_async_query": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Parse_the_body_as_JSON": {
+                "inputs": {
+                    "content": "@variables('post_async_queries')",
+                    "schema": {
+                        "properties": {
+                            "created_at": {
+                                "type": "string"
+                            },
+                            "created_by": {
+                                "properties": {
+                                    "href": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "href": {
+                                "type": "string"
+                            },
+                            "query_parameters": {
+                                "properties": {
+                                    "destinations": {
+                                        "properties": {
+                                            "exclude": {
+                                                "type": "array"
+                                            },
+                                            "include": {
+                                                "items": {
+                                                    "type": "array"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "end_date": {
+                                        "type": "string"
+                                    },
+                                    "max_results": {
+                                        "type": "integer"
+                                    },
+                                    "policy_decisions": {
+                                        "type": "array"
+                                    },
+                                    "query_name": {
+                                        "type": "string"
+                                    },
+                                    "services": {
+                                        "properties": {
+                                            "exclude": {
+                                                "type": "array"
+                                            },
+                                            "include": {
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "sources": {
+                                        "properties": {
+                                            "exclude": {
+                                                "type": "array"
+                                            },
+                                            "include": {
+                                                "items": {
+                                                    "type": "array"
+                                                },
+                                                "type": "array"
+                                            }
+                                        },
+                                        "type": "object"
+                                    },
+                                    "sources_destinations_query_op": {
+                                        "type": "string"
+                                    },
+                                    "start_date": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            },
+                            "status": {
+                                "type": "string"
+                            },
+                            "updated_at": {
+                                "type": "string"
+                            }
+                        },
+                        "type": "object"
+                    }
+                },
+                "runAfter": {
+                    "Retrieve_POST_body_of_async_query": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ParseJson"
+            },
+            "Placeholder_-_Initial_async_query_for_response": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "post_async_queries",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Subtract_1_hour_from_the_current_time": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Placeholder_-_Initial_async_query_job_ID": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "retrieve_job_id",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Placeholder_-_Initial_async_query_for_response": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Placeholder_-_Initial_async_query_job_status_": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "job_status",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Placeholder_-_Initial_async_query_job_ID": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Retrieve_GET_async_query_job_status": {
+                "inputs": {
+                    "name": "job_status",
+                    "value": "@body('Parse_GET_async_query_as_JSON')?['status']"
+                },
+                "runAfter": {
+                    "Parse_GET_async_query_as_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Retrieve_GET_body_of_async_query": {
+                "inputs": {
+                    "name": "post_async_queries",
+                    "value": "@{body('HTTP_-_GET_-_async_query_job_status_with_job_ID')}"
+                },
+                "runAfter": {
+                    "HTTP_-_GET_-_async_query_job_status_with_job_ID": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Retrieve_POST_async_query_job_ID": {
+                "inputs": {
+                    "name": "retrieve_job_id",
+                    "value": "@body('Parse_the_body_as_JSON')?['href']"
+                },
+                "runAfter": {
+                    "Parse_the_body_as_JSON": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Retrieve_POST_async_query_job_status": {
+                "inputs": {
+                    "name": "job_status",
+                    "value": "@body('Parse_the_body_as_JSON')?['status']"
+                },
+                "runAfter": {
+                    "Retrieve_POST_async_query_job_ID": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Retrieve_POST_body_of_async_query": {
+                "inputs": {
+                    "name": "post_async_queries",
+                    "value": "@{body('HTTP_-_POST_-_Create_async_query_from_last_hour_to_the_current_time')}"
+                },
+                "runAfter": {
+                    "HTTP_-_POST_-_Create_async_query_from_last_hour_to_the_current_time": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "SetVariable"
+            },
+            "Send_Data": {
+                "inputs": {
+                    "body": "@{body('HTTP_-_Download_traffic_report')}",
+                    "headers": {
+                        "Log-Type": "illumio_traffic"
+                    },
+                    "host": {
+                        "connection": {
+                            "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                        }
+                    },
+                    "method": "post",
+                    "path": "/api/logs"
+                },
+                "runAfter": {
+                    "HTTP_-_Download_traffic_report": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "ApiConnection"
+            },
+            "Subtract_1_hour_from_the_current_time": {
+                "inputs": {
+                    "baseTime": "@body('Current_time')",
+                    "interval": 1,
+                    "timeUnit": "Hour"
+                },
+                "kind": "SubtractFromTime",
+                "runAfter": {
+                    "Current_time": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Expression"
+            },
+            "Until_the_job_completed": {
+                "actions": {},
+                "expression": "@equals(variables('job_status'), 'completed')",
+                "limit": {
+                    "count": 60,
+                    "timeout": "PT1H"
+                },
+                "runAfter": {
+                    "Retrieve_GET_async_query_job_status": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Until"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "Recurrence_-_1_hour": {
+                "recurrence": {
+                    "frequency": "Hour",
+                    "interval": 1
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureloganalyticsdatacollector": {
+                    "connectionId": "/subscriptions/5d5ec235-9693-4f25-a76f-dcca60728d66/resourceGroups/boon-rg/providers/Microsoft.Web/connections/azureloganalyticsdatacollector",
+                    "connectionName": "azureloganalyticsdatacollector",
+                    "id": "/subscriptions/5d5ec235-9693-4f25-a76f-dcca60728d66/providers/Microsoft.Web/locations/southeastasia/managedApis/azureloganalyticsdatacollector"
+                }
+            }
+        }
+    }
+}
