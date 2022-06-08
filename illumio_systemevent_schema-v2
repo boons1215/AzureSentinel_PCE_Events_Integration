@@ -1,0 +1,264 @@
+{
+    "definition": {
+        "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+        "actions": {
+            "Current_time": {
+                "inputs": {},
+                "kind": "CurrentTime",
+                "runAfter": {},
+                "type": "Expression"
+            },
+            "For_each_-_Parse_the_API_response_body_and_send_to_log_analytics_workspace": {
+                "actions": {
+                    "Parse_JSON_-_For_each_events_in_the_Array": {
+                        "inputs": {
+                            "content": "@body('HTTP_-_Call_the_API')",
+                            "schema": {
+                                "items": {
+                                    "properties": {
+                                        "action": {
+                                            "properties": {
+                                                "api_endpoint": {
+                                                    "type": "string"
+                                                },
+                                                "api_method": {
+                                                    "type": "string"
+                                                },
+                                                "http_status_code": {
+                                                    "type": "integer"
+                                                },
+                                                "src_ip": {
+                                                    "type": "string"
+                                                },
+                                                "uuid": {
+                                                    "type": "string"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "created_by": {
+                                            "properties": {
+                                                "user": {
+                                                    "properties": {
+                                                        "href": {
+                                                            "type": "string"
+                                                        },
+                                                        "username": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        },
+                                        "event_type": {
+                                            "type": "string"
+                                        },
+                                        "href": {
+                                            "type": "string"
+                                        },
+                                        "notifications": {
+                                            "items": {
+                                                "properties": {
+                                                    "info": {
+                                                        "properties": {
+                                                            "user": {
+                                                                "properties": {
+                                                                    "href": {
+                                                                        "type": "string"
+                                                                    },
+                                                                    "username": {
+                                                                        "type": "string"
+                                                                    }
+                                                                },
+                                                                "type": "object"
+                                                            }
+                                                        },
+                                                        "type": "object"
+                                                    },
+                                                    "notification_type": {
+                                                        "type": "string"
+                                                    },
+                                                    "uuid": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "uuid",
+                                                    "notification_type",
+                                                    "info"
+                                                ],
+                                                "type": "object"
+                                            },
+                                            "type": "array"
+                                        },
+                                        "pce_fqdn": {
+                                            "type": "string"
+                                        },
+                                        "resource_changes": {
+                                            "type": "array"
+                                        },
+                                        "severity": {
+                                            "type": "string"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "timestamp": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "href",
+                                        "timestamp",
+                                        "pce_fqdn",
+                                        "created_by",
+                                        "event_type",
+                                        "status",
+                                        "severity",
+                                        "action",
+                                        "resource_changes",
+                                        "notifications"
+                                    ],
+                                    "type": "object"
+                                },
+                                "type": "array"
+                            }
+                        },
+                        "runAfter": {},
+                        "type": "ParseJson"
+                    },
+                    "Send_Data": {
+                        "inputs": {
+                            "body": "@{body('Parse_JSON_-_For_each_events_in_the_Array')}",
+                            "headers": {
+                                "Log-Type": "illumio_events_CL"
+                            },
+                            "host": {
+                                "connection": {
+                                    "name": "@parameters('$connections')['azureloganalyticsdatacollector']['connectionId']"
+                                }
+                            },
+                            "method": "post",
+                            "path": "/api/logs"
+                        },
+                        "runAfter": {
+                            "Parse_JSON_-_For_each_events_in_the_Array": [
+                                "Succeeded"
+                            ]
+                        },
+                        "type": "ApiConnection"
+                    }
+                },
+                "foreach": "@body('HTTP_-_Call_the_API')",
+                "runAfter": {
+                    "HTTP_-_Call_the_API": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Foreach"
+            },
+            "HTTP_-_Call_the_API": {
+                "inputs": {
+                    "authentication": {
+                        "password": "33cf70031f8f408dc8769f2xxxxa68b1cc2",
+                        "type": "Basic",
+                        "username": "api_14ca2xxx"
+                    },
+                    "headers": {
+                        "accept": "application/json"
+                    },
+                    "method": "GET",
+                    "uri": "@variables('eventURL')"
+                },
+                "runAfter": {
+                    "Initialize_variable_-_URL_query": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Http"
+            },
+            "Initialize_variable_-_URL_query": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "eventURL",
+                            "type": "string",
+                            "value": "https://scp4.illum.io/api/v2/orgs/1/events?max_results=@{variables('maxResults')}&timestamp[gte]=@{body('Subtract_from_time_-_last_1_hour_from_the_current_time')}&timestamp[lte]=@{body('Current_time')}"
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Initialize_variable_-_max_results_to_be_retrieved": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Initialize_variable_-_max_results_to_be_retrieved": {
+                "inputs": {
+                    "variables": [
+                        {
+                            "name": "maxResults",
+                            "type": "integer",
+                            "value": 1000
+                        }
+                    ]
+                },
+                "runAfter": {
+                    "Subtract_from_time_-_last_1_hour_from_the_current_time": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "InitializeVariable"
+            },
+            "Subtract_from_time_-_last_1_hour_from_the_current_time": {
+                "inputs": {
+                    "baseTime": "@body('Current_time')",
+                    "interval": 1,
+                    "timeUnit": "Hour"
+                },
+                "kind": "SubtractFromTime",
+                "runAfter": {
+                    "Current_time": [
+                        "Succeeded"
+                    ]
+                },
+                "type": "Expression"
+            }
+        },
+        "contentVersion": "1.0.0.0",
+        "outputs": {},
+        "parameters": {
+            "$connections": {
+                "defaultValue": {},
+                "type": "Object"
+            }
+        },
+        "triggers": {
+            "Recurrence_-_1_hour": {
+                "evaluatedRecurrence": {
+                    "frequency": "Hour",
+                    "interval": 1
+                },
+                "recurrence": {
+                    "frequency": "Hour",
+                    "interval": 1
+                },
+                "type": "Recurrence"
+            }
+        }
+    },
+    "parameters": {
+        "$connections": {
+            "value": {
+                "azureloganalyticsdatacollector": {
+                    "connectionId": "/subscriptions/d3d4f720-c50c-4a63-baca-ee27874468f/resourceGroups/boon-rg/providers/Microsoft.Web/connections/azureloganalyticsdatacollector",
+                    "connectionName": "azureloganalyticsdatacollector",
+                    "id": "/subscriptions/d3d4f720-c50c-4a63-baca-ee27874468f/providers/Microsoft.Web/locations/southeastasia/managedApis/azureloganalyticsdatacollector"
+                }
+            }
+        }
+    }
+}
