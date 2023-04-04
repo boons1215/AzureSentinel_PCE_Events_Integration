@@ -1,0 +1,26 @@
+{
+    "sources": {
+        "include": [
+            []
+        ],
+        "exclude": []
+    },
+    "destinations": {
+        "include": [
+            []
+        ],
+        "exclude": []
+    },
+    "services": {
+        "include": [],
+        "exclude": []
+    },
+    "sources_destinations_query_op": "and",
+    "start_date": "2023-01-23T01:42:03.560Z",
+    "end_date": "2023-01-23T02:42:03.560Z",
+    "policy_decisions": [],
+    "boundary_decisions": [],
+    "query_name": "MAP_QUERY_Time: Last Hour",
+    "exclude_workloads_from_ip_list_query": true,
+    "max_results": 200000
+}

@@ -1,0 +1,113 @@
+{
+  "type": "array",
+  "items": {
+    "type": "object",
+    "properties": {
+      "action": {
+        "type": ["object", "null"],
+        "properties": {
+          "api_endpoint": {},
+          "api_method": {},
+          "http_status_code": {},
+          "src_ip": {
+            "type": "string"
+          },
+          "uuid": {
+            "type": "string"
+          }
+        }
+      },
+      "created_by": {
+        "type": "object",
+        "properties": {
+          "system": {
+            "type": "object"
+          }
+        }
+      },
+      "event_type": {
+        "type": "string"
+      },
+      "href": {
+        "type": "string"
+      },
+      "notifications": {
+        "type": ["array", "null"],
+        "items": {
+          "type": "object",
+          "properties": {
+            "info": {
+              "type": ["object", "null"],
+              "properties": {
+                "agent": {
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "type": "string"
+                    },
+                    "href": {
+                      "type": "string"
+                    },
+                    "name": {}
+                  }
+                },
+                "severity": {
+                  "type": "integer"
+                },
+                "ven": {
+                  "type": "object",
+                  "properties": {
+                    "hostname": {
+                      "type": "string"
+                    },
+                    "href": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "notification_type": {
+              "type": ["string", "null"]
+            },
+            "uuid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "uuid",
+            "notification_type",
+            "info"
+          ]
+        }
+      },
+      "pce_fqdn": {
+        "type": "string"
+      },
+      "resource_changes": {
+        "type": "array"
+      },
+      "severity": {
+        "type": "string"
+      },
+      "status": {
+        "type": ["string", "null"]
+      },
+      "timestamp": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "href",
+      "timestamp",
+      "pce_fqdn",
+      "created_by",
+      "event_type",
+      "status",
+      "severity",
+      "action",
+      "resource_changes",
+      "notifications"
+    ]
+  }
+}

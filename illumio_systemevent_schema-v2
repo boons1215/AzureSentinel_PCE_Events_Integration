@@ -162,9 +162,9 @@
             "HTTP_-_Call_the_API": {
                 "inputs": {
                     "authentication": {
-                        "password": "xxxxx",
+                        "password": "33cf70031f8f408dc8769f29f7cc7b9ae21d5fcd0d83cfa985cef9bfa68b1cc2",
                         "type": "Basic",
-                        "username": "api_14ca2dc572336"
+                        "username": "api_14ca2dc572336bd90"
                     },
                     "headers": {
                         "accept": "application/json"
@@ -254,9 +254,9 @@
         "$connections": {
             "value": {
                 "azureloganalyticsdatacollector": {
-                    "connectionId": "/subscriptions/d3d4f720-c50c-4a63-baca-ee2784a68f/resourceGroups/boon-rg/providers/Microsoft.Web/connections/azureloganalyticsdatacollector",
+                    "connectionId": "/subscriptions/d3d4f720-c50c-4a63-baca-ee278744a68f/resourceGroups/boon-rg/providers/Microsoft.Web/connections/azureloganalyticsdatacollector",
                     "connectionName": "azureloganalyticsdatacollector",
-                    "id": "/subscriptions/d3d4f720-c50c-4a63-baca-ee27868f/providers/Microsoft.Web/locations/southeastasia/managedApis/azureloganalyticsdatacollector"
+                    "id": "/subscriptions/d3d4f720-c50c-4a63-baca-ee278744a68f/providers/Microsoft.Web/locations/southeastasia/managedApis/azureloganalyticsdatacollector"
                 }
             }
         }

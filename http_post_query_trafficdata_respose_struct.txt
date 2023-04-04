@@ -1,0 +1,93 @@
+{
+    "type": "object",
+    "properties": {
+        "status": {
+            "type": "string"
+        },
+        "href": {
+            "type": "string"
+        },
+        "created_by": {
+            "type": "object",
+            "properties": {
+                "href": {
+                    "type": "string"
+                }
+            }
+        },
+        "query_parameters": {
+            "type": "object",
+            "properties": {
+                "sources": {
+                    "type": "object",
+                    "properties": {
+                        "include": {
+                            "type": "array",
+                            "items": {
+                                "type": "array"
+                            }
+                        },
+                        "exclude": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "destinations": {
+                    "type": "object",
+                    "properties": {
+                        "include": {
+                            "type": "array",
+                            "items": {
+                                "type": "array"
+                            }
+                        },
+                        "exclude": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "services": {
+                    "type": "object",
+                    "properties": {
+                        "include": {
+                            "type": "array"
+                        },
+                        "exclude": {
+                            "type": "array"
+                        }
+                    }
+                },
+                "sources_destinations_query_op": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "policy_decisions": {
+                    "type": "array"
+                },
+                "boundary_decisions": {
+                    "type": "array"
+                },
+                "query_name": {
+                    "type": "string"
+                },
+                "exclude_workloads_from_ip_list_query": {
+                    "type": "boolean"
+                },
+                "max_results": {
+                    "type": "integer"
+                }
+            }
+        },
+        "created_at": {
+            "type": "string"
+        },
+        "updated_at": {
+            "type": "string"
+        }
+    }
+}
